@@ -1,59 +1,102 @@
-# TermuxSetup
-Just a 'lil setup script that takes a fresh install of Termux and installs all of the tools and can't-live-without aliases I use so frequently.
+#!/data/data/com.termux/files/usr/bin/bash
 
-## This setup script does stuff. 
-### Here is what it does:
-- Installs tur-repo and x11-repo repositories
-- Installs the XFCE4 desktop
-- Installs Code-OSS (gui)
-- Installs Termux API
-- Installs Python 3
-- Installs Python 2 (for oldass scripts)
-- Installs Node Package Manager
-- Installs AcodeX Server in NPM (For use with Acode's coderunner plugin in their app)
-- Installs a VNC Server **(after restart, you'll need to run 'vncpasswd' to choose a password for the server)**
-- Installs Zsh
-- Changes default Bash shell to god-tier Zsh goodness
+install_package() { pkg install -y $1 || { echo "Failed to install $1. Please check for errors and try again."; exit 1; } } 
 
-## This script comes with aliases!
-Tired of typing in 'python3' every time you wanna run a script? Say no more, use these aliases instead:
+configure_zshrc() { 
+  [ -f ~/.zshrc ] && echo "\n# Changes added by script" >> ~/.zshrc || echo ".zshrc not found. Creating a new one..." 
+  echo "export DISPLAY=:1" >> ~/.zshrc
+  echo "alias py='python3'" >> ~/.zshrc
+  echo "alias py2='python2'" >> ~/.zshrc
+  echo "alias startvnc='vncserver && startxfce4 -d :1 &'" >> ~/.zshrc
+  echo "alias killvnc='vncserver -kill :1'" >> ~/.zshrc
+}
 
-- py = python3
-- py2 = python2
-- startvnc = vncserver && startxfce4 -d :1 & *(it turns on VNC server and starts up the desktop)*
-- killvnc = vncserver --kill :1 *(Kills the VNC server when you're done with the desktop.* **This is important because if you turn off Termux while VNC server is running, the next time you start the server, it'll bitch about locks on the display!)**
+change_termux_repos() {
+  select_repository() {
+    if [ "$1" == "Default repositories" ]; then
+      echo "[*] Termux primary host (USA) selected"
+      MAIN="https://packages.termux.org/apt/termux-main"
+      ROOT="https://packages.termux.org/apt/termux-root"
+      X11="https://packages.termux.org/apt/termux-x11"
+    fi 
+    replace_repository sources.list $MAIN "stable main" "$2" "Main repository"
+    replace_repository sources.list.d/root.list $ROOT "root stable" "$2" "Root repository"
+    replace_repository sources.list.d/x11.list $X11 "x11 main" "$2" "X11 repository"
+  }
 
+  replace_repository() {
+    if [[ "$4" == *"$5"* ]]; then
+      SOURCE_FILE="$1"
+      NEW_URL="$2"
+      COMPONENT_SUITE="$3"
+      TMPFILE="$(mktemp $TMPDIR/$(basename ${SOURCE_FILE}).XXXXXX)"
+      if [ "$1" == "sources.list" ]; then echo "# The main termux repository:" >> "$TMPFILE"; fi
+      echo "deb ${NEW_URL} ${COMPONENT_SUITE}" >> "$TMPFILE"
+      echo "  Changing ${5,,}" 
+      mv "$TMPFILE" "/data/data/com.termux/files/usr/etc/apt/${SOURCE_FILE}"
+    fi
+  }
 
-## Use the following command to get it running:
-```
-curl https://raw.githubusercontent.com/theregoesmyeye/TermuxSetup/main/setup.sh | bash
-```
----
-# TermuxSetup
+  TEMPFILE="$(mktemp /data/data/com.termux/files/usr/tmp/mirror.XXXXXX)"
+  REPOSITORIES=()
+  REPOSITORIES+=("Main repository" "termux-packages" "on")
+  [ -f "/data/data/com.termux/files/usr/etc/apt/sources.list.d/root.list" ] && REPOSITORIES+=("Root repository" "termux-root-packages" "off")
+  [ -f "/data/data/com.termux/files/usr/etc/apt/sources.list.d/x11.list" ] && REPOSITORIES+=("X11 repository" "x11-packages" "off")
+  dialog --clear --checklist "Which repos do you want to edit? Select with space." 0 0 0 "${REPOSITORIES[@]}" --and-widget --clear --radiolist "Which mirror do you want to use?" 0 0 0 "Default repositories" "Default host" on "Default repositories (CF)" "Default host with CloudFlare endpoint" off 2> "$TEMPFILE"
+  retval=$?
+  clear
+  case $retval in 0) IFS=$'\t' read REPOSITORIES MIRROR <<< "$(more $TEMPFILE)"; select_repository "$MIRROR" "$REPOSITORIES";; 1) exit;; 255) exit;; esac
+  rm "$TEMPFILE"
+  echo "[*] Running apt update"
+  apt update
+}
 
-Yeah, yeah, another setup script. This one does the usual boring stuff, but hey, this one is recently updated (probably) and it actually works (also probably).
+if [ -d "/data/data/com.termux/files/home/storage" ]; then
+	cat <<- EOF
 
-## What This Script (Begrudgingly) Does
+	It appears that directory '~/storage' already exists.
+	This script is going to rebuild its structure from
+	scratch, wiping all dangling files. The actual storage
+	content IS NOT going to be deleted.
 
-* **Updates Your Repos (Because It Has To):**  Gets you the freshest packages because apparently that's important to some people.
-* **Installs Essential Repos:** Adds tur-repo and x11-repo, because who doesn't need more package sources?
-* **Development Tools (Blah Blah Blah):** Installs Code-OSS (for the GUI lovers), Nodejs (with npm, of course), Python 3 (with pip), Python 2 (for the dinosaurs), and more. 
-* **XFCE4 Desktop (If You're Into That Sort of Thing):** Sets up XFCE4 so you can pretend Termux is a real computer.
-* **VNC Server (With a Catch):** Installs a VNC server so you can remotely access your tiny Android desktop.  **Don't forget:**  Run `vncpasswd` after restarting to actually set a password.
-* **Zsh Upgrade (Because Bash Is Lame):** Switches your default shell to the mighty Zsh.
-* **Aliases (For the Extremely Lazy):**  Includes these shortcuts so you don't have to type a few extra characters:
-    * `py` - Run Python 3 scripts
-    * `py2` - Run Python 2 scripts
-    * `startvnc` - Start the VNC server and XFCE4 desktop
-    * `killvnc` - Stop the VNC server (Srsly: this is important because if you do not kill the server before stopping Termux, the next time you use startvnc, it'll bitch about display locks.)
+	EOF
+	read -re -p "Do you want to continue? (y/n) " CHOICE
 
-## Usage (If You Must)
+	if ! [[ "${CHOICE}" =~ (Y|y) ]]; then
+		echo "Aborting configuration and leaving directory '~/storage' intact."
+		exit 1
+	fi
+fi
 
-**Here is an overly-complicated one-liner to install so I can look as though I'm smart and I know what I'm doing:**
-```
-curl https://raw.githubusercontent.com/theregoesmyeye/TermuxSetup/main/setup.sh | tee ~/setup.sh && chmod +x ~/setup.sh && bash ~/setup.sh && rm ~/setup.sh
-```
+case "${TERMUX__USER_ID:-}" in ''|*[!0-9]*|0[0-9]*) TERMUX__USER_ID=0;; esac
 
-# Changes:
+am broadcast --user "$TERMUX__USER_ID" \
+		 --es com.termux.app.reload_style storage \
+		 -a com.termux.app.reload_style com.termux > /dev/null
+echo "Storage has been set up and is accessible at ~/storage."
 
-1. Now sets up storage and also installs git.
+read -p "Change the default Termux repositories now? (y/n) " -n 1 -r; echo 
+[[ $REPLY =~ ^[Yy]$ ]] && change_termux_repos
+install_package tur-repo 
+install_package x11-repo
+pkg update && pkg upgrade -y 
+install_package git
+install_package code-oss 
+install_package tilde 
+install_package nodejs 
+install_package xfce4 
+install_package xfce4-goodies
+install_package tigervnc
+install_package zsh
+install_package python3 
+install_package python-pip 
+install_package python2
+install_package chromium 
+read -p "Switch your default shell to zsh? (y/n) " -n 1 -r; echo 
+[[ $REPLY =~ ^[Yy]$ ]] && { configure_zshrc; chsh -s zsh; } 
+echo "All done! Changes made:"
+echo "- Termux repos updated (if you chose to)"
+echo "- Installed tur, x11, git, code-oss, tilde (a way cooler nano), nodejs, xfce4, goodies, tigervnc, zsh, python3 (with pip), python2, chromium"
+echo "- Updated .zshrc (if existed)"
+echo "- Switched shell to zsh (if you chose to)"
+echo "Reminder: Restart Termux, then run 'vncpasswd' to set a password for your VNC server." 
