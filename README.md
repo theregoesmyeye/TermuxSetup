@@ -22,3 +22,6 @@ Yeah, yeah, another setup script. This one does the usual boring stuff, but hey,
 ```
 curl https://raw.githubusercontent.com/theregoesmyeye/TermuxSetup/main/setup.sh | tee ~/setup.sh && chmod +x ~/setup.sh && bash ~/setup.sh && rm ~/setup.sh
 ```
+
+# Changes:
+1. Now sets up storage and installs git, bruh.
