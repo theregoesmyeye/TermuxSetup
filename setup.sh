@@ -1,47 +1,77 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-install_package() { 
-  pkg install $1 -y || { echo "Failed to install $1. Please check for errors and try again."; exit 1; }
-}
+install_package() { pkg install -y $1 || { echo "Failed to install $1. Please check for errors and try again."; exit 1; } } 
 
-configure_zshrc() {
+configure_zshrc() { 
   [ -f ~/.zshrc ] && echo "\n# Changes added by script" >> ~/.zshrc || echo ".zshrc not found. Creating a new one..." 
   echo "export DISPLAY=:1" >> ~/.zshrc
   echo "alias py='python3'" >> ~/.zshrc
   echo "alias py2='python2'" >> ~/.zshrc
   echo "alias startvnc='vncserver && startxfce4 -d :1 &'" >> ~/.zshrc
-  echo "alias killvnc='vncserver --kill :1'" >> ~/.zshrc
+  echo "alias killvnc='vncserver -kill :1'" >> ~/.zshrc
 }
 
-unattended=false
-while [[ $# -gt 0 ]]; do
-  case $1 in --unattended) unattended=true ;; esac; shift
-done
+change_termux_repos() {
+  select_repository() {
+    if [ "$1" == "Default repositories" ]; then
+      echo "[*] Termux primary host (USA) selected"
+      MAIN="https://packages.termux.org/apt/termux-main"
+      ROOT="https://packages.termux.org/apt/termux-root"
+      X11="https://packages.termux.org/apt/termux-x11"
+    fi 
+    replace_repository sources.list $MAIN "stable main" "$2" "Main repository"
+    replace_repository sources.list.d/root.list $ROOT "root stable" "$2" "Root repository"
+    replace_repository sources.list.d/x11.list $X11 "x11 main" "$2" "X11 repository"
+  }
 
-if ! $unattended; then
-  install_package tur-repo
-  install_package x11-repo
-  pkg update && pkg upgrade -y
-  install_package termux-api
-  install_package code-oss
-  install_package npm
-  npm install -g acodex-server 
-  install_package xfce4
-  install_package python3
-  install_package python2 
-  install_package xfce4-goodies
-  install_package tigervncserver 
-  install_package zsh
-  read -p "Do you want to switch your default shell to zsh? (y/n) " -n 1 -r; echo 
-  [[ $REPLY =~ ^[Yy]$ ]] && { configure_zshrc; chsh -s zsh; }
-else 
-  pkg install tur-repo x11-repo -y 
-  pkg update && pkg upgrade -y 
-  pkg install code-oss npm xfce4 xfce4-goodies tigervncserver zsh -y 
-  npm install -g acodex-server 
-  configure_zshrc
-  chsh -s zsh 
-fi
+  replace_repository() {
+    if [[ "$4" == *"$5"* ]]; then
+      SOURCE_FILE="$1"
+      NEW_URL="$2"
+      COMPONENT_SUITE="$3"
+      TMPFILE="$(mktemp $TMPDIR/$(basename ${SOURCE_FILE}).XXXXXX)"
+      if [ "$1" == "sources.list" ]; then echo "# The main termux repository:" >> "$TMPFILE"; fi
+      echo "deb ${NEW_URL} ${COMPONENT_SUITE}" >> "$TMPFILE"
+      echo "  Changing ${5,,}" 
+      mv "$TMPFILE" "/data/data/com.termux/files/usr/etc/apt/${SOURCE_FILE}"
+    fi
+  }
 
-echo "All done! Restart Termux for changes to fully take effect." 
-echo "Remember to install and set up a VNC viewer to use XFCE."
+  TEMPFILE="$(mktemp /data/data/com.termux/files/usr/tmp/mirror.XXXXXX)"
+  REPOSITORIES=()
+  REPOSITORIES+=("Main repository" "termux-packages" "on")
+  [ -f "/data/data/com.termux/files/usr/etc/apt/sources.list.d/root.list" ] && REPOSITORIES+=("Root repository" "termux-root-packages" "off")
+  [ -f "/data/data/com.termux/files/usr/etc/apt/sources.list.d/x11.list" ] && REPOSITORIES+=("X11 repository" "x11-packages" "off")
+  dialog --clear --checklist "Which repos do you want to edit? Select with space." 0 0 0 "${REPOSITORIES[@]}" --and-widget --clear --radiolist "Which mirror do you want to use?" 0 0 0 "Default repositories" "Default host" on "Default repositories (CF)" "Default host with CloudFlare endpoint" off 2> "$TEMPFILE"
+  retval=$?
+  clear
+  case $retval in 0) IFS=$'\t' read REPOSITORIES MIRROR <<< "$(more $TEMPFILE)"; select_repository "$MIRROR" "$REPOSITORIES";; 1) exit;; 255) exit;; esac
+  rm "$TEMPFILE"
+  echo "[*] Running apt update"
+  apt update
+}
+
+read -p "Change the default Termux repositories now? (y/n) " -n 1 -r; echo 
+[[ $REPLY =~ ^[Yy]$ ]] && change_termux_repos
+install_package tur-repo 
+install_package x11-repo
+pkg update && pkg upgrade -y 
+install_package code-oss 
+install_package tilde 
+install_package nodejs 
+install_package xfce4 
+install_package xfce4-goodies
+install_package tigervnc
+install_package zsh
+install_package python3 
+install_package python-pip 
+install_package python2
+install_package chromium 
+read -p "Switch your default shell to zsh? (y/n) " -n 1 -r; echo 
+[[ $REPLY =~ ^[Yy]$ ]] && { configure_zshrc; chsh -s zsh; } 
+echo "All done! Changes made:"
+echo "- Termux repos updated (if you chose to)"
+echo "- Installed tur, x11, code-oss, tilde (a way cooler nano), nodejs, xfce4, goodies, tigervnc, zsh, python3 (with pip), python2, chromium"
+echo "- Updated .zshrc (if existed)"
+echo "- Switched shell to zsh (if you chose to)"
+echo "Reminder: Restart Termux, then run 'vncpasswd' to set a password for your VNC server." 
