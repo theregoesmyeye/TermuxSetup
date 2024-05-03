@@ -29,3 +29,9 @@ Tired of typing in 'python3' evvery time you wanna run a script? Say no more, us
 curl https://raw.githubusercontent.com/theregoesmyeye/TermuxSetup/main/setup.sh | bash
 ```
 ---
+
+
+Oh!I forgot to say, there's also an **--unattended** flag you may use on the script so you don't have to hit 'y' on everything.
+```
+curl https://raw.githubusercontent.com/theregoesmyeye/TermuxSetup/main/setup.sh -o setup.sh && chmod +x setup.sh && bash setup.sh && rm setup.sh
+```
