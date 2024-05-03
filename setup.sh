@@ -26,7 +26,9 @@ if ! $unattended; then
   install_package code-oss
   install_package npm
   npm install -g acodex-server 
-  install_package xfce4 
+  install_package xfce4
+  install_package python3
+  install_package python2 
   install_package xfce4-goodies
   install_package tigervncserver 
   install_package zsh
