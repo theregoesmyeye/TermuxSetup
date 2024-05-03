@@ -21,7 +21,8 @@ done
 if ! $unattended; then
   install_package tur-repo
   install_package x11-repo
-  pkg update && pkg upgrade -y 
+  pkg update && pkg upgrade -y
+  install_package termux-api
   install_package code-oss
   install_package npm
   npm install -g acodex-server 
