@@ -16,7 +16,7 @@ Just a 'lil setup script that takes a fresh install of Termux and installs all o
 - Changes default Bash shell to god-tier Zsh goodness
 
 ## This script comes with aliases!
-Tired of typing in 'python3' evvery time you wanna run a script? Say no more, use these aliases instead:
+Tired of typing in 'python3' every time you wanna run a script? Say no more, use these aliases instead:
 
 - py = python3
 - py2 = python2
@@ -33,5 +33,5 @@ curl https://raw.githubusercontent.com/theregoesmyeye/TermuxSetup/main/setup.sh 
 
 Oh!I forgot to say, there's also an **--unattended** flag you may use on the script so you don't have to hit 'y' on everything.
 ```
-curl https://raw.githubusercontent.com/theregoesmyeye/TermuxSetup/main/setup.sh -o setup.sh && chmod +x setup.sh && bash setup.sh && rm setup.sh
+curl https://raw.githubusercontent.com/theregoesmyeye/TermuxSetup/main/setup.sh -o setup.sh && chmod +x setup.sh && bash setup.sh --unattended && rm setup.sh
 ```
