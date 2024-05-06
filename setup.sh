@@ -81,6 +81,8 @@ install_package tur-repo
 install_package x11-repo
 pkg update && pkg upgrade -y 
 install_package git
+install_package mc
+install_package synaptic
 install_package code-oss 
 install_package tilde 
 install_package nodejs 
@@ -96,7 +98,7 @@ read -p "Switch your default shell to zsh? (y/n) " -n 1 -r; echo
 [[ $REPLY =~ ^[Yy]$ ]] && { configure_zshrc; chsh -s zsh; } 
 echo "All done! Changes made:"
 echo "- Termux repos updated (if you chose to)"
-echo "- Installed tur, x11, git, code-oss, tilde (a way cooler nano), nodejs, xfce4, goodies, tigervnc, zsh, python3 (with pip), python2, chromium"
+echo "- Installed tur, x11, git, code-oss, tilde (a way cooler nano), nodejs, xfce4, goodies, tigervnc, zsh, python3 (with pip), python2, chromium, Midnight Commander, and Synaptic Package Manager"
 echo "- Updated .zshrc (if existed)"
 echo "- Switched shell to zsh (if you chose to)"
 echo "Reminder: Restart Termux, then run 'vncpasswd' to set a password for your VNC server." 
