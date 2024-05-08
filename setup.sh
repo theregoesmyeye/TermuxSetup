@@ -9,6 +9,10 @@ configure_zshrc() {
   echo "alias py2='python2'" >> ~/.zshrc
   echo "alias startvnc='vncserver && startxfce4 -d :1 &'" >> ~/.zshrc
   echo "alias killvnc='vncserver -kill :1'" >> ~/.zshrc
+  echo "alias pki='pkg install'" >> ~/.zshrc
+  echo "alias pku='pkg update'" >> ~/.zshrc
+  echo "alias pkr='pkg remove'" >> ~/.zshrc
+  echo "alias pkau='pkg autoclean'" >> ~/.zshrc
   rm /data/data/com.termux/files/usr/etc/motd
   echo 'ALIASES:\
  ==================================\
