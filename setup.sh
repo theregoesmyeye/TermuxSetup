@@ -10,32 +10,17 @@ configure_zshrc() {
   echo "alias startvnc='vncserver && startxfce4 -d :1 &'" >> ~/.zshrc
   echo "alias killvnc='vncserver -kill :1'" >> ~/.zshrc
   rm /data/data/com.termux/files/usr/etc/motd
-`echo " ( ( ( ) )\))( ' ( )\ ) ( ( /( 
-((_)()\ ) ))\((_) ( ( ( ))\ )\()) ( 
-_(())\_)() /((_)_ )\ )\ )\ ' /((_) (_))/ )\ 
-\ \((_)/ /(_)) | | ((_)((_) _((_)) (_)) | |_ ((_) 
-\ \/\/ / / -_)| |/ _|/ _ \| ' \()/ -_) | _|/ _ \ 
- \_/\_/ \___||_|\__|\___/|_|_|_| \___| \__|\___/ 
- echo ) 
- ` ) /( ( ( ) ( ) 
- ( )(_)) ))\ )( ( ))\ ( /( 
- (_(_()) /((_)(()\ )\ ' /((_) )\()) 
- |_ _|(_)) ((_) _((_)) (_))( ((_)\ 
- | | / -_) | '_|| ' \()| || |\ \ / 
- |_| \___| |_| |_|_|_| \_,_|/_\_\ 
- By Lilith Ivey
- -------------
- ALIASES:
- ==================================
- | vncstart = starts VNC |
- | killvnc = I'll let you guess |
- | py = python 3 |
- | py2 = python 2 |
- | pki = pkg install |
- | pku = pkg update |
- | pkr = pkg remove |
- | pkau = pkg autoclean |
- ================================== " >> /data/data/com.termux/files/usr/etc/motd
+  echo 'ALIASES:\
+ ==================================\
+ | vncstart = starts VNC |\
+ | killvnc = Ill let you guess |\
+ | py = python 3 |\
+ | py2 = python 2 |\
+ | pki = pkg install |\
+ | pku = pkg update |\
+ | pkr = pkg remove |\
+ | pkau = pkg autoclean |\
+ ================================== ' >> /data/data/com.termux/files/usr/etc/motd
 }
 
 change_termux_repos() {
