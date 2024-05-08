@@ -9,6 +9,33 @@ configure_zshrc() {
   echo "alias py2='python2'" >> ~/.zshrc
   echo "alias startvnc='vncserver && startxfce4 -d :1 &'" >> ~/.zshrc
   echo "alias killvnc='vncserver -kill :1'" >> ~/.zshrc
+  rm /data/data/com.termux/files/usr/etc/motd
+`echo " ( ( ( ) )\))( ' ( )\ ) ( ( /( 
+((_)()\ ) ))\((_) ( ( ( ))\ )\()) ( 
+_(())\_)() /((_)_ )\ )\ )\ ' /((_) (_))/ )\ 
+\ \((_)/ /(_)) | | ((_)((_) _((_)) (_)) | |_ ((_) 
+\ \/\/ / / -_)| |/ _|/ _ \| ' \()/ -_) | _|/ _ \ 
+ \_/\_/ \___||_|\__|\___/|_|_|_| \___| \__|\___/ 
+ echo ) 
+ ` ) /( ( ( ) ( ) 
+ ( )(_)) ))\ )( ( ))\ ( /( 
+ (_(_()) /((_)(()\ )\ ' /((_) )\()) 
+ |_ _|(_)) ((_) _((_)) (_))( ((_)\ 
+ | | / -_) | '_|| ' \()| || |\ \ / 
+ |_| \___| |_| |_|_|_| \_,_|/_\_\ 
+ By Lilith Ivey
+ -------------
+ ALIASES:
+ ==================================
+ | vncstart = starts VNC |
+ | killvnc = I'll let you guess |
+ | py = python 3 |
+ | py2 = python 2 |
+ | pki = pkg install |
+ | pku = pkg update |
+ | pkr = pkg remove |
+ | pkau = pkg autoclean |
+ ================================== " >> /data/data/com.termux/files/usr/etc/motd
 }
 
 change_termux_repos() {
@@ -93,12 +120,14 @@ install_package zsh
 install_package python3 
 install_package python-pip 
 install_package python2
-install_package chromium 
+install_package chromium
+install_package man
+install_package htop
 read -p "Switch your default shell to zsh? (y/n) " -n 1 -r; echo 
 [[ $REPLY =~ ^[Yy]$ ]] && { configure_zshrc; chsh -s zsh; } 
 echo "All done! Changes made:"
 echo "- Termux repos updated (if you chose to)"
-echo "- Installed tur, x11, git, code-oss, tilde (a way cooler nano), nodejs, xfce4, goodies, tigervnc, zsh, python3 (with pip), python2, chromium, Midnight Commander, and Synaptic Package Manager"
+echo "- Installed tur, x11, git, code-oss, tilde (a way cooler nano), nodejs, xfce4, goodies, tigervnc, zsh, python3 (with pip), python2, chromium, Midnight Commander, Synaptic Package Manager, manpages, and htop"
 echo "- Updated .zshrc (if existed)"
 echo "- Switched shell to zsh (if you chose to)"
 echo "Reminder: Restart Termux, then run 'vncpasswd' to set a password for your VNC server." 
