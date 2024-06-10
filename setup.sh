@@ -5,6 +5,7 @@ install_package() { pkg install -y $1 || { echo "Failed to install $1. Please ch
 configure_zshrc() { 
   [ -f ~/.zshrc ] && echo "\n# Changes added by script" >> ~/.zshrc || echo ".zshrc not found. Creating a new one..." 
   echo "export DISPLAY=:1" >> ~/.zshrc
+echo "PROMPT='%F{magenta}╭─%! - %t %F{yellow}[%F{white}%~%F{yellow}]%f %F{magenta}╰─$%F{cyan} '" >> ~/.zshrc
   echo "alias py='python3'" >> ~/.zshrc
   echo "alias py2='python2'" >> ~/.zshrc
   echo "alias startvnc='vncserver && startxfce4 -d :1 &'" >> ~/.zshrc
