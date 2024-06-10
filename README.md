@@ -25,3 +25,6 @@ curl https://raw.githubusercontent.com/theregoesmyeye/TermuxSetup/main/setup.sh 
 
 # Changes:
 1. Now sets up storage and installs git, bruh.
+**Jun 9th:** I made a custom handycolorful zsh prompt:
+![screenshot](https://github.com/theregoesmyeye/TermuxSetup/blob/main/IMG_20240609_211518.jpg)
+The number on the left before the clock is your history number. Need to repeat commands? Remember your history number from my new prompt, and when you have to repeat a command for the second time in a session, simply type "!(history number)".
